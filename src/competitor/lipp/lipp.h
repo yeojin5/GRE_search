@@ -30,7 +30,7 @@ void LIPPInterface<KEY_TYPE, PAYLOAD_TYPE>::bulk_load(std::pair <KEY_TYPE, PAYLO
                                                       Param *param) {
     lipp.bulk_load(key_value, static_cast<int>(num));
 }
-
+// lookup interface
 template<class KEY_TYPE, class PAYLOAD_TYPE>
 bool LIPPInterface<KEY_TYPE, PAYLOAD_TYPE>::get(KEY_TYPE key, PAYLOAD_TYPE &val, Param *param) {
     bool exist;

@@ -15,7 +15,8 @@ public:
   bool update(KEY_TYPE key, PAYLOAD_TYPE value, Param *param = nullptr);
 
   bool remove(KEY_TYPE key, Param *param = nullptr);
-
+	
+  // lookup search interface
   size_t scan(KEY_TYPE key_low_bound, size_t key_num, std::pair<KEY_TYPE, PAYLOAD_TYPE> *result,
               Param *param = nullptr);
 
