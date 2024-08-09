@@ -89,17 +89,6 @@ class Benchmark {
             scan_not_enough = 0;
         }
     } stat;
-    
-    /*-------------measure search time-----------------*/
-    struct SearchStat {
-	using std::chrono::steady_clock::time_point = tp;
-	tp *sp; // start point
-	tp *ep; // end point
-	tp *ssp; // scan start point 
-	tp *sep; // scan end point 
-	std::pair <tp,tp> *lookup_time;
-	std::pair <tp,tp> *search_time;
-    } sstat;
 
     struct alignas(CACHELINE_SIZE)
     ThreadParam {
@@ -167,8 +156,6 @@ public:
 #pragma omp parallel for num_threads(thread_num)
         for (int i = 0; i < init_keys.size(); i++) {
             init_key_values[i].first = init_keys[i];
-            init_key_values[i].second = 123456789;
-        }
         COUT_VAR(table_size);
         COUT_VAR(init_keys.size());
 
@@ -310,7 +297,6 @@ public:
     void run(index_t *index) {
         std::thread *thread_array = new std::thread[thread_num];
         param_t params[thread_num];
-	sstat scan_stat;
         TSCNS tn;
         tn.init();
         printf("Begin running\n");
