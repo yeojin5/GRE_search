@@ -14,8 +14,9 @@ struct Param { // for xindex
 	tp *sep; // scan end point
 	std::pair <tp,tp> *lookup_time;
 	std::pair <tp,tp> *search_time;
-    }
-  Param(size_t worker_num, uint32_t thread_id) : worker_num(worker_num), thread_id(thread_id) {}
+    } sstat;
+
+  Param(size_t worker_num, uint32_t thread_id, struct SearchStat) : worker_num(worker_num), thread_id(thread_id), SearchStat(sstat) {}
 };
 
 struct BaseCompare {
