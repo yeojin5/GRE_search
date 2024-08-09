@@ -89,6 +89,17 @@ class Benchmark {
             scan_not_enough = 0;
         }
     } stat;
+    
+    /*-------------measure search time-----------------*/
+    struct SearchStat {
+	using std::chrono::steady_clock::time_point = tp;
+	tp *sp; // start point
+	tp *ep; // end point
+	tp *ssp; // scan start point 
+	tp *sep; // scan end point 
+	std::pair <tp,tp> *lookup_time;
+	std::pair <tp,tp> *search_time;
+    } sstat;
 
     struct alignas(CACHELINE_SIZE)
     ThreadParam {
@@ -299,6 +310,7 @@ public:
     void run(index_t *index) {
         std::thread *thread_array = new std::thread[thread_num];
         param_t params[thread_num];
+	sstat scan_stat;
         TSCNS tn;
         tn.init();
         printf("Begin running\n");
@@ -350,10 +362,11 @@ public:
                     auto ret = index->update(key, 234567891, &paramI);
                     thread_param.success_update += ret;
                 } else if (op == SCAN) { // scan
-                    auto scan_len = index->scan(key, scan_num, scan_result, &paramI);
+		    auto scan_len = index->scan(key, scan_num, scan_result, &paramI);
                     if (scan_len != scan_num) {
                         thread_param.scan_not_enough++;
                     }
+		    
                 } else if (op == DELETE) { // delete
                     auto ret = index->remove(key, &paramI);
                     thread_param.success_remove += ret;
