@@ -76,6 +76,11 @@ class Benchmark {
         uint64_t success_update = 0;
         uint64_t success_remove = 0;
         uint64_t scan_not_enough = 0;
+	typedef std::chrono::nanoseconds nano;
+	nano leaf_sec{0}
+	nano fk_sec{0}
+	nano pred_sec{0}
+	nano search_sec{0}
 
         void clear() {
             latency.clear();
@@ -363,6 +368,13 @@ public:
                     thread_param.latency.push_back(std::make_pair(latency_sample_start_time, latency_sample_end_time));
                 }
             } // omp for loop
+	    if (alexInterface<KEY_TYPE, PAYLOAD_TYPE>* index = dynamic_cast<alexInterface<KEY_TYPE, PAYLOAD_TYPE>*>(index)){
+		index->yj_stat_clac();
+		stat.leaf_sec = index->yj_stat_leaf();
+		stat.fk_sec = index->yj_stat_fk();
+		stat.pred_sec = index->yj_stat_pred();
+		stat.search_sec = index->yj_stat_search();
+	    }
 #pragma omp master
             end_time = tn.rdtsc();
         } // all thread join here
@@ -429,6 +441,10 @@ public:
         printf("success_update: %llu\n", stat.success_update);
         printf("success_remove: %llu\n", stat.success_remove);
         printf("scan_not_enough: %llu\n", stat.scan_not_enough);
+	std::cout << "leaf_sec: "<< stat.leaf_sec.count() << std::endl;
+	std::cout << "fk_sec: "<< stat.fk_sec.count() << std::endl;
+	std::cout << "pred_sec: "<< stat.pred_sec.count() << std::endl;
+	std::cout << "search_sec: "<< stat.search_sec.count() << std::endl;
 
         // time id
         std::time_t t = std::time(nullptr);
@@ -459,8 +475,12 @@ public:
             ofile << "latency_sample" << ",";
             ofile << "data_shift" << ",";
             ofile << "pgm" << ",";
-            ofile << "error_bound" ",";
-            ofile << "table_size" << std::endl;
+            ofile << "error_bound" << ",";
+            ofile << "table_size" << ",";
+            ofile << "leaf_time" << ",";
+            ofile << "fk_time" << ",";
+            ofile << "pred_time" << ",";
+            ofile << "search_time" << std::endl;
         }
 
         std::ofstream ofile;
@@ -502,7 +522,11 @@ public:
         ofile << data_shift << ",";
         ofile << stat.fitness_of_dataset << ",";
         ofile << error_bound << ",";
-        ofile << table_size << std::endl;
+        ofile << table_size << ",";
+        ofile << leaf_sec.count() << ",";
+        ofile << fk_sec.count() << ",";
+        ofile << pred_sec.count() << ",";
+        ofile << search_sec.count() << std::endl;
         ofile.close();
 
         if (clear_flag) stat.clear();
