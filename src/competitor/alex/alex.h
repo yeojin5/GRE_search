@@ -20,6 +20,14 @@ class alexInterface : public indexInterface<KEY_TYPE, PAYLOAD_TYPE> {
 		Param *param = nullptr);
 
 	long long memory_consumption() { return index.model_size() + index.data_size(); }
+	void yj_stat_calc(){
+	    index.bstat.calculate_point();
+	}
+	typedef std::chrono::nanoseconds nano;
+	nano yj_stat_leaf(){return index.bstat.leaf_sec}
+	nano yj_stat_fk(){return index.bstat.fk_sec}
+	nano yj_stat_pred(){return index.bstat.pred_sec}
+	nano yj_stat_search(){return index.bstat.search_sec}
 
     private:
 	alex::Alex<KEY_TYPE, PAYLOAD_TYPE, alex::AlexCompare, std::allocator < std::pair < KEY_TYPE, PAYLOAD_TYPE>>, false>
