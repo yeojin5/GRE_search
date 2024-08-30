@@ -371,7 +371,7 @@ class Benchmark {
 		}
 	    } // omp for loop
 	    if (auto* alex_index = dynamic_cast<alexInterface<KEY_TYPE, PAYLOAD_TYPE>*>(index)){
-		index->yj_stat_calc();
+		alex_index->yj_stat_calc();
 		// get
 		stat.leaf_sec = alex_index->yj_stat_leaf();
 		std::cout << "test_stat" << stat.leaf_sec.count() << std::endl;
