@@ -9,9 +9,12 @@ find_package(OpenMP)
 find_package(MKL REQUIRED)
 find_package(JeMalloc REQUIRED)
 find_package(TBB REQUIRED)
+set(TBB_INCLUDE_DIRS "/usr/include")
+set(TBB_LIBRARIES "/usr/lib/x86_64-linux-gnu/libtbb.so")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx512f -mavx512cd -mavx512vl")
 
 include_directories(${MKL_INCLUDE_DIRS})
 include_directories(${TBB_INCLUDE_DIRS})
