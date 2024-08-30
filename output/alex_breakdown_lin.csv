@@ -1,0 +1,2 @@
+id,read_ratio,insert_ratio,update_ratio,scan_ratio,delete_ratio,key_path,index_type,throughput,init_table_size,memory_consumption,thread_num,min,50 percentile,90 percentile,99 percentile,99.9 percentile,99.99 percentile,max,avg,seed,scan_num,latency_variance,latency_sample,data_shift,pgm,error_bound,table_size,leaf_time,fk_time,pred_time,search_time
+20240830142447,0.5,0.5,0,0,0,../datasets/osm,alex,3417623,1000000,73542272,1,0,0,0,0,0,0,0,0,1866,100,0,0,0,0,64,2000000,87272559,187367789,11052473,105533454
