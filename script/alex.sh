@@ -1,9 +1,10 @@
 #!/bin/bash
 
-OUTPUT_PATH="../output/alex_breakdown_ex.csv"
-DATASETS="books covid fb genome libio osm planet stack wise"
-OP_NUM=200000000
-TABLE_SIZE=200000000
+OUTPUT_PATH="../output/alex_breakdown_linSIMD.csv"
+#DATASETS="books covid fb genome libio osm planet stack wise"
+DATASETS="osm"
+OP_NUM=2000000
+TABLE_SIZE=2000000
 
 for DATASET in $DATASETS; do
     ../build/microbench \
