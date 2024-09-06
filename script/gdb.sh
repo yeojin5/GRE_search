@@ -1,13 +1,12 @@
 #!/bin/bash
 
-OUTPUT_PATH="../output/alex_breakdown_ex+bbin.csv"
-DATASETS="books fb osm wiki"
-#DATASETS="osm"
-OP_NUM=200000000
-TABLE_SIZE=200000000
+OUTPUT_PATH="../output/gdb.csv"
+DATASETS="books"
+OP_NUM=20000000
+TABLE_SIZE=20000000
 
 for DATASET in $DATASETS; do
-    ../build/microbench \
+    gdb --args ../build/microbench \
         --keys_file=../datasets/$DATASET \
         --keys_file_type=binary \
         --read=0.5 --insert=0.5 \
@@ -19,3 +18,4 @@ for DATASET in $DATASETS; do
         --memory \
         --output_path=$OUTPUT_PATH
 done
+
