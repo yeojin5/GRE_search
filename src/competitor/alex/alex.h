@@ -24,11 +24,14 @@ class alexInterface : public indexInterface<KEY_TYPE, PAYLOAD_TYPE> {
 	    index.bstat.calculate_point();
 	}
 	typedef std::chrono::nanoseconds nano;
-	nano yj_stat_leaf(){return index.bstat.leaf_sec;}
-	nano yj_stat_fk(){return index.bstat.fk_sec;}
-	nano yj_stat_pred(){return index.bstat.pred_sec;}
-	nano yj_stat_search(){return index.bstat.search_sec;}
-
+//	nano yj_stat_leaf(){return index.bstat.leaf_sec;}
+//	nano yj_stat_fk(){return index.bstat.fk_sec;}
+//	nano yj_stat_pred(){return index.bstat.pred_sec;}
+//	nano yj_stat_search(){return index.bstat.search_sec;}
+//long long get_llc_miss(){return index.bstat.llc_miss;}
+//long long get_dtlb_miss(){return index.bstat.dtlb_miss;}
+//long long get_branch_miss(){return index.bstat.branch_miss;}
+//long long get_instructions(){return index.bstat.instructions;}
     private:
 	alex::Alex<KEY_TYPE, PAYLOAD_TYPE, alex::AlexCompare, std::allocator < std::pair < KEY_TYPE, PAYLOAD_TYPE>>, false>
 	    index;
@@ -42,6 +45,7 @@ void alexInterface<KEY_TYPE, PAYLOAD_TYPE>::bulk_load(std::pair <KEY_TYPE, PAYLO
 
 template<class KEY_TYPE, class PAYLOAD_TYPE>
 bool alexInterface<KEY_TYPE, PAYLOAD_TYPE>::get(KEY_TYPE key, PAYLOAD_TYPE &val, Param *param) {
+    // PAYLOAD_TYPE *res = index.get_payload(key, param->search_type, param->perf_no);
     PAYLOAD_TYPE *res = index.get_payload(key);
     if (res != nullptr) {
 	val = *res;
@@ -57,7 +61,7 @@ bool alexInterface<KEY_TYPE, PAYLOAD_TYPE>::put(KEY_TYPE key, PAYLOAD_TYPE value
 
 template<class KEY_TYPE, class PAYLOAD_TYPE>
 bool alexInterface<KEY_TYPE, PAYLOAD_TYPE>::update(KEY_TYPE key, PAYLOAD_TYPE value, Param *param) {
-    // return index.update(key, value);
+    // return index.update(key, vaue);
     return false;
 }
 

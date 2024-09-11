@@ -23,7 +23,6 @@
 #include "../competitor/indexInterface.h"
 #include "pgm_metric.h"
 #include <jemalloc/jemalloc.h>
-
 template<typename KEY_TYPE, typename PAYLOAD_TYPE>
 class Benchmark {
     typedef indexInterface <KEY_TYPE, PAYLOAD_TYPE> index_t;
@@ -48,6 +47,7 @@ class Benchmark {
     std::vector <std::string> all_index_type;
     std::vector <std::string> all_thread_num;
     std::string index_type;
+	std::string index_search;
     std::string keys_file_path;
     std::string keys_file_type;
     std::string sample_distribution;
@@ -59,6 +59,8 @@ class Benchmark {
     bool memory_record;
     bool dataset_statistic;
     bool data_shift = false;
+	std::vector <std::string> search_type;
+	int perf_no;
 
     std::vector <KEY_TYPE> init_keys;
     KEY_TYPE *keys;
@@ -81,7 +83,10 @@ class Benchmark {
 	nano fk_sec{0};
 	nano pred_sec{0};
 	nano search_sec{0};
-
+long long llc_miss;
+long long dtlb_miss;
+long long branch_miss;
+long long instructions;
 	void clear() {
 	    latency.clear();
 	    throughput = 0;
@@ -173,6 +178,7 @@ class Benchmark {
 	index = get_index<KEY_TYPE, PAYLOAD_TYPE>(index_type);
 
 	// initilize Index (sort keys first)
+	//Param param = Param(thread_num, 0, index_search, perf_no);
 	Param param = Param(thread_num, 0);
 	index->init(&param);
 
@@ -229,7 +235,8 @@ class Benchmark {
 	memory_record = get_boolean_flag(flags, "memory");
 	dataset_statistic = get_boolean_flag(flags, "dataset_statistic");
 	data_shift = get_boolean_flag(flags, "data_shift");
-
+	search_type = get_comma_separated(flags, "search_type");
+	perf_no = stoi(get_with_default(flags, "perf_no", "0"));
 	COUT_THIS("[micro] Read:Insert:Update:Scan:Delete= " << read_ratio << ":" << insert_ratio << ":" << update_ratio << ":"
 		<< scan_ratio << ":" << delete_ratio);
 	double ratio_sum = read_ratio + insert_ratio + delete_ratio + update_ratio + scan_ratio;
@@ -314,6 +321,7 @@ class Benchmark {
 	{
 	    // thread specifier
 	    auto thread_id = omp_get_thread_num();
+	    //auto paramI = Param(thread_num, thread_id, index_search, perf_no);
 	    auto paramI = Param(thread_num, thread_id);
 	    // Latency Sample Variable
 	    int latency_sample_interval = operations_num / (operations_num * latency_sample_ratio);
@@ -338,6 +346,7 @@ class Benchmark {
 		    latency_sample_start_time = tn.rdtsc();
 
 		if (op == READ) {  // get
+			
 		    auto ret = index->get(key, val, &paramI);
 		    // if(!ret) {
 		    //     printf("read not found, Key %lu\n",key);
@@ -370,18 +379,22 @@ class Benchmark {
 		    thread_param.latency.push_back(std::make_pair(latency_sample_start_time, latency_sample_end_time));
 		}
 	    } // omp for loop
-	    if (auto* alex_index = dynamic_cast<alexInterface<KEY_TYPE, PAYLOAD_TYPE>*>(index)){
-		alex_index->yj_stat_calc();
-		// get
-		stat.leaf_sec = alex_index->yj_stat_leaf();
-		std::cout << "test_stat" << stat.leaf_sec.count() << std::endl;
-		std::cout << "test_index" << alex_index->yj_stat_leaf().count() << std::endl;
-		stat.fk_sec = alex_index->yj_stat_fk();
-		stat.pred_sec = alex_index->yj_stat_pred();
-		stat.search_sec = alex_index->yj_stat_search();
-	    } else {
+//	    if (auto* alex_index = dynamic_cast<alexInterface<KEY_TYPE, PAYLOAD_TYPE>*>(index)){
+//		alex_index->yj_stat_calc();
+//		// get
+//		stat.leaf_sec = alex_index->yj_stat_leaf();
+//		std::cout << "test_stat" << stat.leaf_sec.count() << std::endl;
+//		std::cout << "test_index" << alex_index->yj_stat_leaf().count() << std::endl;
+//		stat.fk_sec = alex_index->yj_stat_fk();
+//		stat.pred_sec = alex_index->yj_stat_pred();
+//		stat.search_sec = alex_index->yj_stat_search();
+//		stat.llc_miss = alex_index->get_llc_miss();
+//		stat.dtlb_miss = alex_index->get_dtlb_miss();
+//		stat.branch_miss = alex_index->get_branch_miss();
+//		stat.instructions = alex_index->get_instructions();
+//	    } else {
 		std::cout << "this is error" << std::endl;
-	    }
+	    // }
 #pragma omp master
 	    end_time = tn.rdtsc();
 	} // all thread join here
@@ -464,6 +477,7 @@ class Benchmark {
 	    ofile << "read_ratio" << "," << "insert_ratio" << "," << "update_ratio" << "," << "scan_ratio" << "," << "delete_ratio" << ",";
 	    ofile << "key_path" << ",";
 	    ofile << "index_type" << ",";
+		ofile << "search_type" << ",";
 	    ofile << "throughput" << ",";
 	    ofile << "init_table_size" << ",";
 	    ofile << "memory_consumption" << ",";
@@ -484,10 +498,15 @@ class Benchmark {
 	    ofile << "pgm" << ",";
 	    ofile << "error_bound" << ",";
 	    ofile << "table_size" << ",";
+		ofile << "perf_no" << ",";
 	    ofile << "leaf_time" << ",";
 	    ofile << "fk_time" << ",";
 	    ofile << "pred_time" << ",";
-	    ofile << "search_time" << std::endl;
+	    ofile << "search_time" << ",";
+		ofile << "llc_miss"<< ",";
+		ofile << "dtlb_miss"<< ",";
+		ofile << "branch_miss"<< ",";
+		ofile << "instructions"<< std::endl;
 	}
 
 	std::ofstream ofile;
@@ -499,6 +518,8 @@ class Benchmark {
 
 	ofile << keys_file_path << ",";
 	ofile << index_type << ",";
+	ofile << index_search << ",";
+	ofile << perf_no << ",";
 	ofile << stat.throughput << ",";
 	ofile << init_table_size << ",";
 	ofile << stat.memory_consumption << ",";
@@ -533,25 +554,28 @@ class Benchmark {
 	ofile << stat.leaf_sec.count() << ",";
 	ofile << stat.fk_sec.count() << ",";
 	ofile << stat.pred_sec.count() << ",";
-	ofile << stat.search_sec.count() << std::endl;
+	ofile << stat.search_sec.count() << ",";
+	ofile << stat.llc_miss << ",";
+	ofile << stat.dtlb_miss << ",";
+	ofile << stat.branch_miss << ",";
+	ofile << stat.instructions << std::endl;
 	ofile.close();
 
 	if (clear_flag) stat.clear();
     }
 
-    void run_benchmark() {
-	load_keys();
-	generate_operations(keys);
-	for (auto s: all_index_type) {
-	    for (auto t: all_thread_num) {
-		thread_num = stoi(t);
-		index_type = s;
-		index_t *index;
-		prepare(index, keys);
-		run(index);
-		if (index != nullptr) delete index;
-	    }
+	void run_benchmark() {
+		load_keys();
+		generate_operations(keys);
+		for (auto s: all_index_type) {
+			for (auto t: all_thread_num) {
+					thread_num = stoi(t);
+					index_type = s;
+					index_t *index;
+					prepare(index, keys);
+					run(index);
+					if (index != nullptr) delete index;}
+		}
 	}
-    }
 
 };

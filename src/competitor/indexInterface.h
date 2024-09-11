@@ -1,12 +1,16 @@
 #include <iomanip>
+#include <string>
 
 #pragma once
 
 struct Param { // for xindex
   size_t worker_num;
   uint32_t thread_id;
+  std::string search_type;
+int perf_no;
 
   Param(size_t worker_num, uint32_t thread_id) : worker_num(worker_num), thread_id(thread_id) {}
+  Param(size_t worker_num, uint32_t thread_id, std::string search_type, int perf_no) : worker_num(worker_num), thread_id(thread_id), search_type(search_type), perf_no(perf_no) {}
 };
 
 struct BaseCompare {
