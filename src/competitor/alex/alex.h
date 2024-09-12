@@ -3,83 +3,70 @@
 
 template<class KEY_TYPE, class PAYLOAD_TYPE>
 class alexInterface : public indexInterface<KEY_TYPE, PAYLOAD_TYPE> {
-    public:
-	void init(Param *param = nullptr) {}
+public:
+  void init(Param *param = nullptr){}
+  void bulk_load(std::pair <KEY_TYPE, PAYLOAD_TYPE> *key_value, size_t num, Param *param = nullptr);
 
-	void bulk_load(std::pair <KEY_TYPE, PAYLOAD_TYPE> *key_value, size_t num, Param *param = nullptr);
+  bool get(KEY_TYPE key, PAYLOAD_TYPE &val, Param *param = nullptr);
 
-	bool get(KEY_TYPE key, PAYLOAD_TYPE &val, Param *param = nullptr);
+  bool put(KEY_TYPE key, PAYLOAD_TYPE value, Param *param = nullptr);
 
-	bool put(KEY_TYPE key, PAYLOAD_TYPE value, Param *param = nullptr);
+  bool update(KEY_TYPE key, PAYLOAD_TYPE value, Param *param = nullptr);
 
-	bool update(KEY_TYPE key, PAYLOAD_TYPE value, Param *param = nullptr);
+  bool remove(KEY_TYPE key, Param *param = nullptr);
 
-	bool remove(KEY_TYPE key, Param *param = nullptr);
+  size_t scan(KEY_TYPE key_low_bound, size_t key_num, std::pair<KEY_TYPE, PAYLOAD_TYPE> *result,
+              Param *param = nullptr);
 
-	size_t scan(KEY_TYPE key_low_bound, size_t key_num, std::pair<KEY_TYPE, PAYLOAD_TYPE> *result,
-		Param *param = nullptr);
+  long long memory_consumption() { return index.model_size() + index.data_size(); }
 
-	long long memory_consumption() { return index.model_size() + index.data_size(); }
-	void yj_stat_calc(){
-	    index.bstat.calculate_point();
-	}
-	typedef std::chrono::nanoseconds nano;
-//	nano yj_stat_leaf(){return index.bstat.leaf_sec;}
-//	nano yj_stat_fk(){return index.bstat.fk_sec;}
-//	nano yj_stat_pred(){return index.bstat.pred_sec;}
-//	nano yj_stat_search(){return index.bstat.search_sec;}
-//long long get_llc_miss(){return index.bstat.llc_miss;}
-//long long get_dtlb_miss(){return index.bstat.dtlb_miss;}
-//long long get_branch_miss(){return index.bstat.branch_miss;}
-//long long get_instructions(){return index.bstat.instructions;}
-    private:
-	alex::Alex<KEY_TYPE, PAYLOAD_TYPE, alex::AlexCompare, std::allocator < std::pair < KEY_TYPE, PAYLOAD_TYPE>>, false>
-	    index;
+private:
+  alex::Alex<KEY_TYPE, PAYLOAD_TYPE, alex::AlexCompare, std::allocator < std::pair < KEY_TYPE, PAYLOAD_TYPE>>, false>
+  index;
 };
 
 template<class KEY_TYPE, class PAYLOAD_TYPE>
 void alexInterface<KEY_TYPE, PAYLOAD_TYPE>::bulk_load(std::pair <KEY_TYPE, PAYLOAD_TYPE> *key_value, size_t num,
-	Param *param) {
-    index.bulk_load(key_value, (int) num);
+                                                      Param *param) {
+  index.bulk_load(key_value, (int) num);
 }
 
 template<class KEY_TYPE, class PAYLOAD_TYPE>
 bool alexInterface<KEY_TYPE, PAYLOAD_TYPE>::get(KEY_TYPE key, PAYLOAD_TYPE &val, Param *param) {
-    // PAYLOAD_TYPE *res = index.get_payload(key, param->search_type, param->perf_no);
-    PAYLOAD_TYPE *res = index.get_payload(key);
-    if (res != nullptr) {
-	val = *res;
-	return true;
-    }
-    return false;
+  PAYLOAD_TYPE *res = index.get_payload(key,param->search_type, param->perf_no);
+  if (res != nullptr) {
+    val = *res;
+    return true;
+  }
+  return false;
 }
 
 template<class KEY_TYPE, class PAYLOAD_TYPE>
 bool alexInterface<KEY_TYPE, PAYLOAD_TYPE>::put(KEY_TYPE key, PAYLOAD_TYPE value, Param *param) {
-    return index.insert(key, value).second;
+  return index.insert(key, value).second;
 }
 
 template<class KEY_TYPE, class PAYLOAD_TYPE>
 bool alexInterface<KEY_TYPE, PAYLOAD_TYPE>::update(KEY_TYPE key, PAYLOAD_TYPE value, Param *param) {
-    // return index.update(key, vaue);
+    // return index.update(key, value);
     return false;
 }
 
 template<class KEY_TYPE, class PAYLOAD_TYPE>
 bool alexInterface<KEY_TYPE, PAYLOAD_TYPE>::remove(KEY_TYPE key, Param *param) {
-    auto num_erase = index.erase(key);
-    return num_erase > 0;
+  auto num_erase = index.erase(key);
+  return num_erase > 0;
 }
 
 template<class KEY_TYPE, class PAYLOAD_TYPE>
 size_t alexInterface<KEY_TYPE, PAYLOAD_TYPE>::scan(KEY_TYPE key_low_bound, size_t key_num,
-	std::pair<KEY_TYPE, PAYLOAD_TYPE> *result,
-	Param *param) {
-    auto iter = index.lower_bound(key_low_bound);
-    int scan_size = 0;
-    for (scan_size = 0; scan_size < key_num && !iter.is_end(); scan_size++) {
-	result[scan_size] = {(*iter).first, (*iter).second};
-	iter++;
-    }
-    return scan_size;
+                                                   std::pair<KEY_TYPE, PAYLOAD_TYPE> *result,
+                                                   Param *param) {
+  auto iter = index.lower_bound(key_low_bound);
+  int scan_size = 0;
+  for (scan_size = 0; scan_size < key_num && !iter.is_end(); scan_size++) {
+    result[scan_size] = {(*iter).first, (*iter).second};
+    iter++;
+  }
+  return scan_size;
 }
