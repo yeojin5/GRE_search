@@ -74,3 +74,27 @@ std::vector<std::string> get_comma_separated(
   }
   return vals;
 }
+
+std::string get_string_separated(
+    std::map<std::string, std::string>& m, const std::string& key) {
+    auto it = m.find(key);
+    if (it == m.end()) {
+        return "";  // 키가 없을 경우 빈 문자열 반환
+    }
+    
+    // std::istringstream을 이용해 콤마로 구분된 값을 파싱
+    std::istringstream s(m[key]);
+    std::string val;
+    std::string result;
+    
+    // 파싱된 값을 다시 콤마로 연결
+    while (std::getline(s, val, ',')) {
+        if (!result.empty()) {
+            result += ",";  // 기존에 값이 있을 경우 콤마 추가
+        }
+        result += val;
+    }
+
+    std::cout << key << " = " << it->second << std::endl;
+    return result;  // 최종 문자열 반환
+}
