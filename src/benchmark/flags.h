@@ -85,16 +85,12 @@ std::string get_string_separated(
     // std::istringstream을 이용해 콤마로 구분된 값을 파싱
     std::istringstream s(m[key]);
     std::string val;
-    std::string result;
-    
-    // 파싱된 값을 다시 콤마로 연결
-    while (std::getline(s, val, ',')) {
-        if (!result.empty()) {
-            result += ",";  // 기존에 값이 있을 경우 콤마 추가
-        }
-        result += val;
-    }
-
-    std::cout << key << " = " << it->second << std::endl;
-    return result;  // 최종 문자열 반환
+	std::cout << "flags: " << m[key] << std::endl;
+	
+	if(std::getline(s,val,',')){
+	std::cout << "parsed search_type: " << val << std::endl;
+	std::cout << key<< "=" << it->second << std::endl;
+	return val;
+	}
+	return "";
 }

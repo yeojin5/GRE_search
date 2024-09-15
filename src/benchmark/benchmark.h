@@ -59,8 +59,8 @@ class Benchmark {
     bool memory_record;
     bool dataset_statistic;
     bool data_shift = false;
-	std::string search_type;
-	int perf_no;
+	std::string search_type = "";
+	int perf_no = 0;
 
     std::vector <KEY_TYPE> init_keys;
     KEY_TYPE *keys;
@@ -78,6 +78,9 @@ class Benchmark {
         uint64_t success_update = 0;
         uint64_t success_remove = 0;
         uint64_t scan_not_enough = 0;
+		typedef std::chrono::nanoseconds nano;
+
+		nano lookup_latency{0};
 
         void clear() {
             latency.clear();
@@ -170,6 +173,7 @@ public:
         index = get_index<KEY_TYPE, PAYLOAD_TYPE>(index_type);
 
         // initilize Index (sort keys first)
+		std::cout<<"prepare_search_type: "<< search_type<<std::endl;
         Param param = Param(thread_num, 0, search_type, perf_no);
         index->init(&param);
 
@@ -228,7 +232,8 @@ public:
         data_shift = get_boolean_flag(flags, "data_shift");
 		search_type = get_string_separated(flags, "search_type");
 		perf_no = stoi(get_with_default(flags, "perf_no", "0"));
-
+		std::cout << "Flags: "<< flags["search_type"] << std::endl;
+		std::cout << "parse_search_type" << search_type << std::endl;
         COUT_THIS("[micro] Read:Insert:Update:Scan:Delete= " << read_ratio << ":" << insert_ratio << ":" << update_ratio << ":"
                                                       << scan_ratio << ":" << delete_ratio);
         double ratio_sum = read_ratio + insert_ratio + delete_ratio + update_ratio + scan_ratio;
@@ -313,7 +318,7 @@ public:
         {
             // thread specifier
             auto thread_id = omp_get_thread_num();
-            auto paramI = Param(thread_num, thread_id);
+            auto paramI = Param(thread_num, thread_id, search_type, perf_no);
             // Latency Sample Variable
             int latency_sample_interval = operations_num / (operations_num * latency_sample_ratio);
             auto latency_sample_start_time = tn.rdtsc();
@@ -337,8 +342,11 @@ public:
                     latency_sample_start_time = tn.rdtsc();
 
                 if (op == READ) {  // get
+			std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
                     auto ret = index->get(key, val, &paramI);
-                    // if(!ret) {
+			std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
+            stat.lookup_latency = std::chrono::duration_cast<std::chrono::nanoseconds>(end-start);
+					// if(!ret) {
                     //     printf("read not found, Key %lu\n",key);
                     //     continue;
                     // }
@@ -368,6 +376,7 @@ public:
                     thread_param.latency.push_back(std::make_pair(latency_sample_start_time, latency_sample_end_time));
                 }
             } // omp for loop
+
 #pragma omp master
             end_time = tn.rdtsc();
         } // all thread join here
@@ -434,7 +443,7 @@ public:
         printf("success_update: %llu\n", stat.success_update);
         printf("success_remove: %llu\n", stat.success_remove);
         printf("scan_not_enough: %llu\n", stat.scan_not_enough);
-
+		std::cout << "lookup_latency: "<< stat.lookup_latency.count() << std::endl;
         // time id
         std::time_t t = std::time(nullptr);
         char time_str[100];
@@ -464,7 +473,8 @@ public:
             ofile << "latency_sample" << ",";
             ofile << "data_shift" << ",";
             ofile << "pgm" << ",";
-            ofile << "error_bound" ",";
+            ofile << "error_bound"<< ",";
+			ofile << "lookup_latency"<< ",";
             ofile << "table_size" << std::endl;
         }
 
@@ -507,6 +517,7 @@ public:
         ofile << data_shift << ",";
         ofile << stat.fitness_of_dataset << ",";
         ofile << error_bound << ",";
+		ofile << stat.lookup_latency.count() << ",";
         ofile << table_size << std::endl;
         ofile.close();
 
