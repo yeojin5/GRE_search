@@ -69,14 +69,14 @@ All the result will be output to the csv file specified in --output_path flag.
 ## ALEX_Result
 
 lookup latency
-```
+
 ![alex_lookup_latency](https://github.com/user-attachments/assets/65176b87-c74b-4d3e-ab9d-0e1eeecc8bb4)
-```
+
 perf_branch_miss
-```
+
 ![alex_branch_miss](https://github.com/user-attachments/assets/f1c57c8e-b6b9-4682-94ca-f2d278a9f86a)
-```
+
 perf_instructions
-```
+
 ![alex_instructions](https://github.com/user-attachments/assets/7fd5957b-9b71-4b67-a1ac-8f892d134b3a)
-```
+
