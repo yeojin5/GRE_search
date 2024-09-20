@@ -6,11 +6,14 @@
 struct Param { // for xindex
 	size_t worker_num;
 	uint32_t thread_id;
-	std::string search_type = "exponential";
+	std::string search_type = "";
 	int perf_no = 0;
-
+	double delta = 0.2;
 	Param(size_t worker_num, uint32_t thread_id) : worker_num(worker_num), thread_id(thread_id) {}
-	Param(size_t worker_num, uint32_t thread_id, std::string search_type, int perf_no) : worker_num(worker_num), thread_id(thread_id), search_type(search_type), perf_no(perf_no) {}
+	Param(size_t worker_num, uint32_t thread_id, std::string search_type, int perf_no) : worker_num(worker_num), thread_id(thread_id), search_type(search_type), perf_no(perf_no) {
+	std::cout << "parameter search_type: "<< search_type<<std::endl;
+}
+	Param(size_t worker_num, uint32_t thread_id, std::string search_type, int perf_no, double delta) : worker_num(worker_num), thread_id(thread_id), search_type(search_type), perf_no(perf_no), delta(delta) {}
 };
 
 struct BaseCompare {

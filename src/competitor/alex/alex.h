@@ -1,10 +1,13 @@
 #include"./src/src/core/alex.h"
+#include "./src/src/core/alex_base.h"
 #include"../indexInterface.h"
 
 template<class KEY_TYPE, class PAYLOAD_TYPE>
 class alexInterface : public indexInterface<KEY_TYPE, PAYLOAD_TYPE> {
 public:
-  void init(Param *param = nullptr){}
+  void init(Param *param = nullptr){
+	index.set_density(param->delta);
+  }
   void bulk_load(std::pair <KEY_TYPE, PAYLOAD_TYPE> *key_value, size_t num, Param *param = nullptr);
 
   bool get(KEY_TYPE key, PAYLOAD_TYPE &val, Param *param = nullptr);
@@ -19,6 +22,9 @@ public:
               Param *param = nullptr);
 
   long long memory_consumption() { return index.model_size() + index.data_size(); }
+  void get_perf(long long llc_miss_, long long dtlb_miss_, long long branch_miss_, long long instructions_) {
+	index.get_perf(llc_miss_, dtlb_miss_, branch_miss_, instructions_);
+  }
 
 private:
   alex::Alex<KEY_TYPE, PAYLOAD_TYPE, alex::AlexCompare, std::allocator < std::pair < KEY_TYPE, PAYLOAD_TYPE>>, false>
@@ -34,7 +40,8 @@ void alexInterface<KEY_TYPE, PAYLOAD_TYPE>::bulk_load(std::pair <KEY_TYPE, PAYLO
 template<class KEY_TYPE, class PAYLOAD_TYPE>
 bool alexInterface<KEY_TYPE, PAYLOAD_TYPE>::get(KEY_TYPE key, PAYLOAD_TYPE &val, Param *param) {
   PAYLOAD_TYPE *res = index.get_payload(key,param->search_type, param->perf_no);
-  if (res != nullptr) {
+ if (res != nullptr) {
+	// std::cout << "val: "<< val << "*res: "<< *res << std::endl;
     val = *res;
     return true;
   }
