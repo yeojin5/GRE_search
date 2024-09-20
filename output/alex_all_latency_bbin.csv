@@ -1,0 +1,5 @@
+id,read_ratio,insert_ratio,update_ratio,scan_ratio,delete_ratio,key_path,index_type,throughput,init_table_size,memory_consumption,thread_num,min,50 percentile,90 percentile,99 percentile,99.9 percentile,99.99 percentile,max,avg,seed,scan_num,latency_variance,latency_sample,data_shift,pgm,error_bound,search_type,lookup_latency,llc_miss,dtlb_miss,branch_miss,instructions,table_size
+20240919105159,0.5,0.5,0,0,0,../datasets/books,alex,2211171,10000000,409530928,1,0,0,0,0,0,0,0,0,1866,100,0,0,0,0,64,ex_mb_bbin,3421471352,0,0,0,0,20000000
+20240919105224,0.5,0.5,0,0,0,../datasets/fb,alex,1409186,10000000,491986072,1,0,0,0,0,0,0,0,0,1866,100,0,0,0,0,64,ex_mb_bbin,5270845460,0,0,0,0,20000000
+20240919105251,0.5,0.5,0,0,0,../datasets/osm,alex,1441840,10000000,495105648,1,0,0,0,0,0,0,0,0,1866,100,0,0,0,0,64,ex_mb_bbin,5336342766,0,0,0,0,20000000
+20240919105306,0.5,0.5,0,0,0,../datasets/wiki,alex,2037804,8146148,364083928,1,0,0,0,0,0,0,0,0,1866,100,0,0,0,0,64,ex_mb_bbin,3289879915,0,0,0,0,16292296
