@@ -1,13 +1,13 @@
 #!/bin/bash
 
 OUTPUT_PATH="../output/alex_all_perf_.csv"
-DATASETS="books osm"
+DATASETS="osm"
 #DATASETS="fb"
-SEARCHS="exponential bin bbin mb_bbin ex_mb_bbin slin mb_slin ex_mb_slin"
+SEARCHS="exponential mb_bbin ex_mb_bbin mb_slin ex_mb_slin"
 #SEARCHS="ex_mb_bbin"
 OP_NUM=100000
 TABLE_SIZE=200000000
-PERFS="0 1 2 3"
+PERFS="2 3"
 DELTAS="0.2 0.3 0.4 0.5 0.6 0.7"
 
 for DATASET in $DATASETS; do
@@ -18,7 +18,7 @@ for DATASET in $DATASETS; do
 				../build/microbench \
 					--keys_file=../datasets/$DATASET \
 					--keys_file_type=binary \
-					--read=0.5 --insert=0.5 \
+					--read=1 \
 					--operations_num=$OP_NUM \
 					--table_size=$TABLE_SIZE \
 					--init_table_ratio=0.5 \
@@ -28,7 +28,7 @@ for DATASET in $DATASETS; do
 					--search_type=$SEARCH \
 					--output_path=$OUTPUT_PATH \
 					--perf_no=$PERF \
-					--delta=$DELTA \
+					--delta=$DELTA 
 				done
 			done
 		done

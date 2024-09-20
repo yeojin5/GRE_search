@@ -16,6 +16,7 @@ for DATASET in $DATASETS; do
         --thread_num=1 \
         --index=alex \
         --memory \
+		--search_type=slin \
         --output_path=$OUTPUT_PATH
 done
 
